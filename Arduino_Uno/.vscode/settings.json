@@ -1,0 +1,4 @@
+{
+    "cmake.configureOnOpen": true,
+    "cmake.sourceDirectory": "/home/okwon/Documents/PlatformIO/Projects/Arduino/.pio/libdeps/uno/ArduinoJson"
+}
