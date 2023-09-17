@@ -3,6 +3,10 @@
 		{
 			"name": "Auduino_nano",
 			"path": "Auduino_nano"
+		},
+		{
+			"name": "Arduino_Uno",
+			"path": "Arduino_Uno"
 		}
 	],
 	"settings": {}
