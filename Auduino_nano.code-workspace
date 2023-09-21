@@ -1,8 +1,8 @@
 {
 	"folders": [
 		{
-			"name": "Auduino_nano",
-			"path": "Auduino_nano"
+			"name": "ESP32Hello",
+			"path": "ESP32Hello"
 		}
 	],
 	"settings": {}
