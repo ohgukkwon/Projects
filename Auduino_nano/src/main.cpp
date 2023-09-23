@@ -40,10 +40,10 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);  // Configure LiquidCrystal_I2C library with
 
 void setup() {
 
-  int bard_rate = 9600;
-  Serial.begin(bard_rate);
+  // int bard_rate = 115200;
+  Serial.begin(115200);
   Serial.setTimeout(1000);
-  mySerial.begin(bard_rate);
+  mySerial.begin(115200);
   mySerial.setTimeout(1000);
   Serial.print("USB Serial is ready");   // opens serial port, sets data rate to 9600 bps
 
@@ -182,13 +182,13 @@ void dht11(){           //DHT11 Temp and Humidity sensor
     return;
   }
 
+  // lcd.setCursor(0,0);
+  // lcd.print("                ");
   lcd.setCursor(0,0);
-  lcd.print("                ");
-  lcd.setCursor(0,1);
   lcd.print(F("Humidity: ")); /*prints humidity value*/
   lcd.print(h);
   lcd.print(F("%"));
-  lcd.setCursor(0,2);
+  lcd.setCursor(0,1);
   lcd.print("T: ");
   lcd.print(t);
   lcd.print(F("'C ")); 
