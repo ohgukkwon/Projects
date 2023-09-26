@@ -34,11 +34,9 @@ void loop() {
     //myTime = millis();
     radio.read(&text, sizeof(text));
     Serial.print("Hello world ");    
-    Serial.println(text);    
+    Serial.println(text); 
+    delay(300);   
   }
-  else
-  {
-    Serial.println("no signal");
-  }
-  Serial.println(i);
+
+ 
   }
