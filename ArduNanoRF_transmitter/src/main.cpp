@@ -42,8 +42,10 @@ void loop() {
 
   //dht11()
   //if (radio.available()) {
-  const char text[] = "from Transmitter ";
-  // const char addt[] = "added";
+  char text[30] = "hello world, Transmitter ";
+  char addt[10] = "added";
+
+  strncat(text, addt, 30);
 
   // char addE[100];
   // strcat(addE, text);
@@ -51,7 +53,7 @@ void loop() {
   // strcat(addE, addt);  
 
   radio.write(&text, sizeof(text));  
-  //radio.write(&num, sizeof(num) );
+  //radio.write(&addt, sizeof(addt) );
   Serial.println(text);
   //Serial.println(num);
   Serial.print("\n");

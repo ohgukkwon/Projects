@@ -29,11 +29,11 @@ int i = 0;
 void loop() {
   
   if (radio.available()) {
-    char text[32] = "";
+    char text[50] = "";
     
     //myTime = millis();
     radio.read(&text, sizeof(text));
-    Serial.print("Hello world ");    
+    //Serial.print("Hello world ");    
     Serial.println(text); 
     delay(300);   
   }
