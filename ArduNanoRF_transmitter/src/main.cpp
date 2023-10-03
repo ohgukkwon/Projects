@@ -10,7 +10,7 @@
 //#define DHTTYPE DHT22   // DHT 22 (AM2302), AM2321
 //#define DHTTYPE DHT21   // DHT 21 (AM2301)
 DHT dht(DHTPIN, DHTTYPE);
-void dht11();
+//void dht11();
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);  // Configure LiquidCrystal_I2C library with 0x27 address, 16 columns and 2 rows
 //sda #a4, scl #a5
@@ -30,53 +30,61 @@ void setup() {
   radio.setPALevel(RF24_PA_MIN);
   radio.stopListening();
 
-  Serial.begin(9600);
-  Serial.setTimeout(1000);
+  // Serial.begin(9600);
+  // Serial.setTimeout(1000);
 
 
   lcd.init();                            // Initialize I2C LCD module
   lcd.backlight();  
 }
 int i =0;
-void loop() {
+void loop()
+{
 
   //dht11()
+  if (i <1000)
+  {
   //if (radio.available()) {
-  char text[30] = "hello world, Transmitter ";
-  char addt[10] = "added";
+  char text[30] = "#1:";
+  // char num_str[20]="";
+  
+  // sprintf(num_str, "%d", i);   //convert int to string
 
-  strncat(text, addt, 30);
+  // strncat(text, num_str, 30);     //add string to string
 
   // char addE[100];
   // strcat(addE, text);
   // strcat(addE, " - ");
   // strcat(addE, addt);  
 
-  radio.write(&text, sizeof(text));  
-  //radio.write(&addt, sizeof(addt) );
-  Serial.println(text);
-  //Serial.println(num);
-  Serial.print("\n");
-  i++;
-  
-
-}
-
-void dht11(){           //DHT11 Temp and Humidity sensor
-  float h = dht.readHumidity(); /*float variable that stores humidity value*/
+    // if (radio.available()) {  
+    // radio.write(&text, sizeof(text));  
+    //radio.write(&addt, sizeof(addt) );
+    // Serial.print("Write, ");
+    // Serial.println(text);
+    //Serial.println(num);
+    //Serial.print("\n");
+  //float h = dht.readHumidity(); /*float variable that stores humidity value*/
+  float h = 12.34;
   float t = dht.readTemperature(); /*float variable that store temperature in Celsius*/
   float f = dht.readTemperature(true); /*variable to store temperature in Fahrenheit*/
-  if (isnan(h) || isnan(t) || isnan(f)) {
-    Serial.println("Failed to read from DHT sensor!");
-    lcd.setCursor(0, 0);               // Go to column 0, row 0
-    lcd.print("DHT Fail        ");
-    lcd.setCursor(0, 1);               // Go to column 0, row 0
-    lcd.print("                ");
-    return;
-  }
+  // if (isnan(h) || isnan(t) || isnan(f)) 
+  // {
+  //   //Serial.println("Failed to read from DHT sensor!");
+  //   lcd.setCursor(0, 0);               // Go to column 0, row 0
+  //   lcd.print("DHT Fail        ");
+  //   lcd.setCursor(0, 1);               // Go to column 0, row 0
+  //   lcd.print("                ");
+  //   return;
+  //   }
 
-  // lcd.setCursor(0,0);
-  // lcd.print("                ");
+  char hum[20]="";
+  dtostrf(h,5,2,hum);                                //convert float to string, h -> hum
+  char concast_str[30] = "";
+  sprintf(concast_str,"%s %s%s %d", "test", hum,"%", i);   //concast string
+  strcat(text, concast_str);
+  radio.write(&text, sizeof(text));  
+
   lcd.setCursor(0,0);
   lcd.print(F("Humidity: ")); /*prints humidity value*/
   lcd.print(h);
@@ -85,15 +93,55 @@ void dht11(){           //DHT11 Temp and Humidity sensor
   // lcd.print("T:");
   lcd.print(t);
   lcd.print(F("'C")); 
-  lcd.print(", ");
-  lcd.print(f);
-  lcd.print(F("'F")); 
+  lcd.print(",   ");
+  lcd.print(i);
+  // lcd.print(F("'F")); 
 
-  Serial.print(F("Humidity: ")); /*prints humidity value*/
-  Serial.print(h);
-  Serial.print(F("%  Temperature: "));
-  Serial.print(t);
-  Serial.print(F("°C ")); /*prints temp in Celsius*/
-  Serial.print(f);
-  Serial.println(F("°F ")); /*prints temp in Fahrenheit*/
-}
+
+  }
+
+  else
+  {
+    i=0;
+  }
+
+  i++;
+  // delay(300);
+}  
+
+
+// void dht11(){           //DHT11 Temp and Humidity sensor
+//   float h = dht.readHumidity(); /*float variable that stores humidity value*/
+//   float t = dht.readTemperature(); /*float variable that store temperature in Celsius*/
+//   float f = dht.readTemperature(true); /*variable to store temperature in Fahrenheit*/
+//   if (isnan(h) || isnan(t) || isnan(f)) {
+//     Serial.println("Failed to read from DHT sensor!");
+//     lcd.setCursor(0, 0);               // Go to column 0, row 0
+//     lcd.print("DHT Fail        ");
+//     lcd.setCursor(0, 1);               // Go to column 0, row 0
+//     lcd.print("                ");
+//     return;
+//   }
+
+//   // lcd.setCursor(0,0);
+//   // lcd.print("                ");
+//   lcd.setCursor(0,0);
+//   lcd.print(F("Humidity: ")); /*prints humidity value*/
+//   lcd.print(h);
+//   lcd.print(F("%"));
+//   lcd.setCursor(0,1);
+//   // lcd.print("T:");
+//   lcd.print(t);
+//   lcd.print(F("'C")); 
+//   lcd.print(", ");
+//   lcd.print(f);
+//   lcd.print(F("'F")); 
+
+  // Serial.print(F("Humidity: ")); /*prints humidity value*/
+  // Serial.print(h);
+  // Serial.print(F("%  Temperature: "));
+  // Serial.print(t);
+  // Serial.print(F("°C ")); /*prints temp in Celsius*/
+  // Serial.print(f);
+  // Serial.println(F("°F ")); /*prints temp in Fahrenheit*/
+//}
