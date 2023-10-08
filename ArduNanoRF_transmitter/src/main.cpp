@@ -1,123 +1,35 @@
-#include <string.h>
-#include <stdio.h>
-#include <Wire.h>                  // Include Wire library (required for I2C devices)
-#include <LiquidCrystal_I2C.h>  // Include LiquidCrystal_I2C library 
-#include "Arduino.h"
-
-#include "DHT.h"
-#define DHTPIN 4     /*Nano pin 4 for DHT11 sensor input*/
-#define DHTTYPE DHT11   /*DHT sensor type we are using*/
-//#define DHTTYPE DHT22   // DHT 22 (AM2302), AM2321
-//#define DHTTYPE DHT21   // DHT 21 (AM2301)
-DHT dht(DHTPIN, DHTTYPE);
-//void dht11();
-
-LiquidCrystal_I2C lcd(0x27, 16, 2);  // Configure LiquidCrystal_I2C library with 0x27 address, 16 columns and 2 rows
-//sda #a4, scl #a5
-
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
-
-#include "max6675.h"
-int thermoDO = 4;
-int thermoCS = 5;
-int thermoCLK = 6;
-MAX6675 thermocouple(thermoCLK, thermoCS, thermoDO);
-
 RF24 radio(7, 8); // CE, CSN
+
+#include <LiquidCrystal_I2C.h>  // Include LiquidCrystal_I2C library 
+#include "Arduino.h"
+
+LiquidCrystal_I2C lcd(0x27, 20, 4);  // Configure LiquidCrystal_I2C library with 0x27 address, 16 columns and 2 rows
+//sda #a4, scl #a5
 
 const byte address[6] = "00001";
 
-
 void setup() {
+  //Serial.begin(9600);
   radio.begin();
   radio.openWritingPipe(address);
-  radio.openReadingPipe(0, address);
   radio.setPALevel(RF24_PA_MIN);
   radio.stopListening();
-  radio.printDetails(); 
-
-  // Serial.begin(9600);
-  // Serial.setTimeout(1000);
 
   lcd.clear();
   lcd.init();                            // Initialize I2C LCD module
   lcd.backlight();  
 }
-struct tempStrut {
-  float t_6672;
-  int cnt;
-  int h;      // = dht.readHumidity(); /*float variable that stores humidity value*/
-  float t;    // = dht.readTemperature(); /*float variable that store temperature in Celsius*/
-  float f;    // = dht.readTemperature(true); /*variable to store temperature in Fahrenheit*/
-} sendData;
 
-struct faultStrut {
-  float t_6672=0;
-  int cnt=0;
-  int h=0;      // = dht.readHumidity(); /*float variable that stores humidity value*/
-  float t=0;    // = dht.readTemperature(); /*float variable that store temperature in Celsius*/
-  float f=0;    // = dht.readTemperature(true); /*variable to store temperature in Fahrenheit*/
-} faultData;
-
-int i =0;
-// void radio_init();
-void loop()
-{
- 
-    //dht11()
-    int h = dht.readHumidity(); /*float variable that stores humidity value*/
-    float t = dht.readTemperature(); /*float variable that store temperature in Celsius*/
-    float f = dht.readTemperature(true); /*variable to store temperature in Fahrenheit*/
-    if (i <100) 
-    {
-      sendData.t_6672 = thermocouple.readCelsius();
-      sendData.cnt = i;
-        
-      radio.write(&sendData, sizeof(sendData)); 
-      lcd.setCursor(0,0);
-      //lcd.print(sendData);
-      lcd.setCursor(0,0);
-      lcd.print(sendData.t_6672);
-      lcd.setCursor(0,1);
-      lcd.print(sendData.cnt);
-    }
-    else
-    {
-      i=0;
-      lcd.clear();
-    }
-    i++;
-    delay(300);
-  }
-  // else
-  // {
-  //   lcd.clear();
-  //   lcd.setCursor(0,0);
-  //   lcd.print("Network Fault");
-    
-  //   for (int i=5; i>=0; i--)
-  //   {
-  //     lcd.setCursor(0,0);
-  //     lcd.print("Network reset");
-  //     lcd.setCursor(0,1);
-  //     lcd.print(i);
-  //     delay(1000);
-  //   }
-  //   radio.powerDown();
-  //   radio_init();
-  //   radio.powerUp();
-  //   lcd.clear();
-  // }
- 
-
-// void radio_init()
-// {
-//   radio.begin();
-//   radio.openReadingPipe(0, address);
-//   radio.setPALevel(RF24_PA_MIN);
-//   radio.startListening();
-//   radio.printDetails(); 
-//   delay(1000);
-// }
+void loop() {
+  const char text[] = "Tx Ardu#1";
+  radio.write(&text, sizeof(text));
+  //Serial.println(text);  
+  delay(100);
+  lcd.setCursor(0,0);
+  lcd.print(text);
+  lcd.setCursor(0,1);
+  lcd.print("                         ");
+}

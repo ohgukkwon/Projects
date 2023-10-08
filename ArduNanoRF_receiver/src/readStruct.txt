@@ -16,25 +16,47 @@
 
 RF24 radio(7, 8); // CE, CSN
 
-const byte address[6] = "00001";
+//const byte address1[6] = "00001";
+const byte address2[6] = "00002";
 //unsigned long myTime;
 
 LiquidCrystal_I2C lcd(0x27, 20, 4);  // Configure LiquidCrystal_I2C library with 0x27 address, 16 columns and 2 rows
 //sda #a4, scl #a5
-struct tempStrut {
+struct readData {
+  int tx_id;
   float t_6672;
   int cnt;
   int h ;//= dht.readHumidity(); /*float variable that stores humidity value*/
   float t; // = dht.readTemperature(); /*float variable that store temperature in Celsius*/
   float f; // = dht.readTemperature(true); /*variable to store temperature in Fahrenheit*/
 } readData;
+
+struct readData1 {
+  int tx_id;
+  float t_6672;
+  int cnt;
+  int h ;//= dht.readHumidity(); /*float variable that stores humidity value*/
+  float t; // = dht.readTemperature(); /*float variable that store temperature in Celsius*/
+  float f; // = dht.readTemperature(true); /*variable to store temperature in Fahrenheit*/
+} readData1;
+
+struct readData2 {
+  int tx_id;
+  float t_6672;
+  int cnt;
+  int h ;//= dht.readHumidity(); /*float variable that stores humidity value*/
+  float t; // = dht.readTemperature(); /*float variable that store temperature in Celsius*/
+  float f; // = dht.readTemperature(true); /*variable to store temperature in Fahrenheit*/
+} readData2;
+
 void radio_init();
+void rf_read();
 
 void setup() {
   // Serial.begin(9600);
   radio.begin();
-  radio.openWritingPipe(address);
-  radio.openReadingPipe(0, address);
+  //radio.openReadingPipe(0, address1);  //1st RF
+  radio.openReadingPipe(1, address2);  //2nd RF
   radio.setPALevel(RF24_PA_MIN);
   radio.startListening();
   radio.printDetails(); 
@@ -50,29 +72,26 @@ void loop()
   {
     // float text[50];
     radio.read(&readData, sizeof(readData));  //read data save to struct
+    rf_read();
+    // radio.read(&readData, sizeof(readData));  //read data save to struct
+    // rf_read();
 
-    
-    // temp =(readData.t_6672,1);
-    float temp = readData.t_6672;
-
-    int test_num = 1;
-    radio.write(&test_num, sizeof(test_num)); 
-    
+   //from tx01 
     lcd.setCursor(0,0);
-    lcd.print(temp, 1);     //float decimal point change ex - 26.00 ->26.0
-    lcd.print(F("'C"));
+    lcd.print(readData1.tx_id);
+    lcd.print(F(":"));
+    lcd.print(readData1.t_6672, 1);     //float decimal point change ex - 26.00 ->26.0
+    lcd.print(F("'C, CNT:"));
+    lcd.print(readData1.cnt);
+
+    // from tx02
     lcd.setCursor(0,1);
-    lcd.print(readData.cnt);
-    if (readData.cnt >50)
-    {
-      lcd.setCursor(0,2);
-      lcd.print("Counter higher > 50");
-    }
-    else
-    {
-      lcd.setCursor(0,2);
-      lcd.print("                    ");
-    }
+    lcd.print(readData2.tx_id);
+    lcd.print(F(":"));
+    lcd.print(readData2.t_6672, 1);     //float decimal point change ex - 26.00 ->26.0
+    lcd.print(F("'C, CNT:"));
+    lcd.print(readData2.cnt);
+
   }
   else
   {
@@ -80,7 +99,7 @@ void loop()
     lcd.setCursor(0,0);
     lcd.print("Network Fault");
     
-    for (int i=5; i>=0; i--)
+    for (int i=3; i>=0; i--)
     {
       lcd.setCursor(0,0);
       lcd.print("Network reset");
@@ -99,9 +118,33 @@ void loop()
 void radio_init()
 {
   radio.begin();
-  radio.openReadingPipe(0, address);
+  radio.openReadingPipe(1, address2);
   radio.setPALevel(RF24_PA_MIN);
   radio.startListening();
   radio.printDetails(); 
   delay(1000);
+
+}
+
+void rf_read()
+{
+  if (readData.tx_id == 0)
+  {
+    readData1.tx_id   = readData.tx_id ;
+    readData1.t_6672  = readData.t_6672;
+    readData1.cnt     = readData.cnt   ;
+    readData1.h       = readData.h     ;//= dht.readHumidity(); /*float variable that stores humidity value*/
+    readData1.t       = readData.t     ; // = dht.readTemperature(); /*float variable that store temperature in Celsius*/
+    readData1.f       = readData.f; // = dht.readTemperature(true); /*variable to store temperature in Fahrenheit*/
+  }
+  if (readData.tx_id == 2)
+  {
+    readData2.tx_id   = readData.tx_id ;
+    readData2.t_6672  = readData.t_6672;
+    readData2.cnt     = readData.cnt   ;
+    readData2.h       = readData.h     ;//= dht.readHumidity(); /*float variable that stores humidity value*/
+    readData2.t       = readData.t     ; // = dht.readTemperature(); /*float variable that store temperature in Celsius*/
+    readData2.f       = readData.f     ; // = dht.readTemperature(true); /*variable to store temperature in Fahrenheit*/
+  }
+
 }

@@ -13,7 +13,7 @@ DHT dht(DHTPIN, DHTTYPE);
 //void dht11();
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);  // Configure LiquidCrystal_I2C library with 0x27 address, 16 columns and 2 rows
-//sda #a4, scl #a5
+//ESP32 sda #21, scl #22
 
 #include <SPI.h>
 #include <nRF24L01.h>
@@ -25,26 +25,9 @@ int thermoCS = 5;
 int thermoCLK = 6;
 MAX6675 thermocouple(thermoCLK, thermoCS, thermoDO);
 
-RF24 radio(7, 8); // CE, CSN
+RF24 radio(4, 5); // CE, CSN on Blue Pill  ESP32
 
 const byte address2[6] = "00002";
-
-
-void setup() {
-  radio.begin();
-  radio.openWritingPipe(address2);
-  // radio.openReadingPipe(0, address);
-  radio.setPALevel(RF24_PA_MIN);
-  radio.stopListening();
-  radio.printDetails(); 
-
-  // Serial.begin(9600);
-  // Serial.setTimeout(1000);
-
-  lcd.clear();
-  lcd.init();                            // Initialize I2C LCD module
-  lcd.backlight();  
-}
 struct tempStrut {
   int tx_id;
   float t_6672;
@@ -54,36 +37,63 @@ struct tempStrut {
   float f;    // = dht.readTemperature(true); /*variable to store temperature in Fahrenheit*/
 } sendData2;
 
+void setup() {
+  radio.begin();
+  radio.openWritingPipe(address2);
+  // radio.openReadingPipe(0, address);
+  radio.setPALevel(RF24_PA_MIN);
+  radio.stopListening();
+  radio.printDetails(); 
+
+  Serial.begin(115200);
+  Serial.setTimeout(1000);
+
+  lcd.clear();
+  lcd.init();                            // Initialize I2C LCD module
+  lcd.backlight();  
+}
+
 int i =0;
 // void radio_init();
 void loop()
 {
- 
   //dht11()
-  int h = dht.readHumidity(); /*float variable that stores humidity value*/
-  float t = dht.readTemperature(); /*float variable that store temperature in Celsius*/
-  float f = dht.readTemperature(true); /*variable to store temperature in Fahrenheit*/
-
-  if (i <100) 
-  {
-    sendData2.t_6672 = thermocouple.readCelsius();
+  //int h = dht.readHumidity(); /*float variable that stores humidity value*/
+  //float t = dht.readTemperature(); /*float variable that store temperature in Celsius*/
+  //float f = dht.readTemperature(true); /*variable to store temperature in Fahrenheit*/
+    sendData2.t_6672 = 123; //thermocouple.readCelsius();
     sendData2.cnt = i;
     sendData2.tx_id = 2;
       
     radio.write(&sendData2, sizeof(sendData2)); 
     lcd.setCursor(0,0);
-    //lcd.print(sendData);
-    lcd.setCursor(0,0);
     lcd.print(sendData2.t_6672);
     lcd.setCursor(0,1);
     lcd.print(sendData2.cnt);
-  }
-  else
-  {
-    i=0;
-    lcd.clear();
-  }
-  i++;
+    Serial.println(sendData2.cnt);
+
+  // if (i <100) 
+  // {
+  //   sendData2.t_6672 = 123; //thermocouple.readCelsius();
+  //   sendData2.cnt = i;
+  //   sendData2.tx_id = 2;
+      
+  //   radio.write(&sendData2, sizeof(sendData2)); 
+  //   lcd.setCursor(0,0);
+  //   //lcd.print(sendData);
+  //   lcd.setCursor(0,0);
+  //   lcd.print(sendData2.t_6672);
+  //   lcd.setCursor(0,1);
+  //   lcd.print(sendData2.cnt);
+  //   Serial.println(sendData2.cnt);
+  // }
+  // else
+  // {
+  //   i=0;
+  //   lcd.clear();
+    // Serial.println("Fail");
+  // }
+  // i++;
   delay(300);
 }
   // else

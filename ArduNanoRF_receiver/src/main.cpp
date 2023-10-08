@@ -1,107 +1,47 @@
-/*
-* Arduino Wireless Communication Tutorial
-*       Example 1 - Receiver Code
-*                
-* by Dejan Nedelkovski, www.HowToMechatronics.com
-* 
-* Library: TMRh20/RF24, https://github.com/tmrh20/RF24/
-*/
-
-// #include <SPI.h>
-// #include <nRF24L01.h>
+#include <SPI.h>
+#include <nRF24L01.h>
 #include <RF24.h>
-#include "Arduino.h"
 #include <LiquidCrystal_I2C.h>  // Include LiquidCrystal_I2C library 
-#include <stdio.h>
-
-RF24 radio(7, 8); // CE, CSN
-
-const byte address[6] = "00001";
-//unsigned long myTime;
-
 LiquidCrystal_I2C lcd(0x27, 20, 4);  // Configure LiquidCrystal_I2C library with 0x27 address, 16 columns and 2 rows
 //sda #a4, scl #a5
-struct tempStrut {
-  float t_6672;
-  int cnt;
-  int h ;//= dht.readHumidity(); /*float variable that stores humidity value*/
-  float t; // = dht.readTemperature(); /*float variable that store temperature in Celsius*/
-  float f; // = dht.readTemperature(true); /*variable to store temperature in Fahrenheit*/
-} readData;
-void radio_init();
+
+RF24 radio(7, 8); // CE-7, CSN-8, SCK-13, MISO-12, MOSI-11
+//NRF24L01 power is 3.3V --
+
+const byte address[6] = "00001";
 
 void setup() {
   // Serial.begin(9600);
   radio.begin();
-  radio.openWritingPipe(address);
   radio.openReadingPipe(0, address);
   radio.setPALevel(RF24_PA_MIN);
   radio.startListening();
-  radio.printDetails(); 
-  // radio.setAutoAck();
-
+  
+  lcd.clear();
   lcd.init();                            // Initialize I2C LCD module
   lcd.backlight();  
 }
 
-void loop() 
-{
-  if (radio.available())
-  {
-    // float text[50];
-    radio.read(&readData, sizeof(readData));  //read data save to struct
-
-    
-    // temp =(readData.t_6672,1);
-    float temp = readData.t_6672;
-
-    int test_num = 1;
-    radio.write(&test_num, sizeof(test_num)); 
-    
+void loop() {
+  if (radio.available()) {
+    char text[32] = "";
+    radio.read(&text, sizeof(text));
+    // Serial.print("Rx: ");
+    // Serial.println(text);
     lcd.setCursor(0,0);
-    lcd.print(temp, 1);     //float decimal point change ex - 26.00 ->26.0
-    lcd.print(F("'C"));
+    lcd.print("Rx: ");
+    lcd.print(text);
     lcd.setCursor(0,1);
-    lcd.print(readData.cnt);
-    if (readData.cnt >50)
-    {
-      lcd.setCursor(0,2);
-      lcd.print("Counter higher > 50");
-    }
-    else
-    {
-      lcd.setCursor(0,2);
-      lcd.print("                    ");
-    }
+    lcd.print("                         ");
+    delay(300);
   }
   else
   {
     lcd.clear();
     lcd.setCursor(0,0);
-    lcd.print("Network Fault");
-    
-    for (int i=5; i>=0; i--)
-    {
-      lcd.setCursor(0,0);
-      lcd.print("Network reset");
-      lcd.setCursor(0,1);
-      lcd.print(i);
-      delay(1000);
-    }
-    radio.powerDown();
-    radio_init();
-    radio.powerUp();
-    lcd.clear();
+    lcd.print("Fail                          ");
+    lcd.setCursor(0,1);
+    lcd.print("                         ");
+    delay(300);
   }
-  delay(500);
-}
-
-void radio_init()
-{
-  radio.begin();
-  radio.openReadingPipe(0, address);
-  radio.setPALevel(RF24_PA_MIN);
-  radio.startListening();
-  radio.printDetails(); 
-  delay(1000);
 }
