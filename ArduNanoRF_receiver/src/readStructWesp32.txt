@@ -36,49 +36,36 @@ void setup() {
   lcd.init();                            // Initialize I2C LCD module
   lcd.backlight();  
 }
-void radio_read();
+
 void loop() {
   if (radio.available()) 
   {
     //char text[32] = "";
-    //radio_read();
+    radio.read(&readData, sizeof(readData));
     // Serial.print("Rx: ");
     // Serial.println(text);
-    for (int i=0; i<50; i++)
+    if (readData.tx_id ==1)
     {
-      radio_read();
-      if (readData.tx_id ==1)
-      {
-        lcd.setCursor(0,0);
-        lcd.print("#");
-        lcd.print(readData.tx_id);
-        lcd.print(",Ard,");        
-        lcd.print(readData.cnt);
-        lcd.print(",");
-        lcd.print(readData.max6675_c,1);
-        lcd.print("'C            ");
-      }
-      i++;
-      delay(100);
+      lcd.setCursor(0,0);
+      lcd.print("#");
+      lcd.print(readData.tx_id);
+      lcd.print(",Ard,");
+      
+      lcd.print(readData.cnt);
+      lcd.print("                   ");
     }
 
-    for (int i=0; i<50; i++)
+    radio.read(&readData, sizeof(readData));
+    if (readData.tx_id == 2)
     {
-      radio_read();
-      if (readData.tx_id == 2)
-      {
-        lcd.setCursor(0,1);
-        lcd.print("#");
-        lcd.print(readData.tx_id);
-        lcd.print(",ESP,");
+      lcd.setCursor(0,1);
+      lcd.print("#");
+      lcd.print(readData.tx_id);
+      lcd.print(",ESP,");
 
-        lcd.print(readData.cnt/255);         //esp32 integer convert
-        lcd.print(",");
-        lcd.print((readData.max6675_c/255),1);
-        lcd.print("'C            ");
-      }
-      i++;
-      delay(100);
+      lcd.print(readData.cnt/255);         //esp32 integer convert
+      lcd.print("                   ");
+      //Serial.println(readData.cnt);
     }
     delay(50);
   }
@@ -111,8 +98,4 @@ void radio_init()
   radio.startListening();
   radio.printDetails(); 
   delay(1000);
-}
-void radio_read()
-{
-  radio.read(&readData, sizeof(readData));
 }
