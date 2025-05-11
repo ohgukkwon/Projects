@@ -31,56 +31,46 @@
 DHT dht(DHTPIN, DHTTYPE);
 
 
-int i = 0;
-// void setup() {
-//   Serial.begin(9600);
-
-// }
 
 void temp_read() {
+  // Wait a few seconds between measurements.
+  delay(2000);
 
-    Serial.begin(9600);
+  // Reading temperature or humidity takes about 250 milliseconds!
+  // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
+  float h = dht.readHumidity();
+  // Read temperature as Celsius (the default)
+  float c = dht.readTemperature();
+  // Read temperature as Fahrenheit (isFahrenheit = true)
+  float f = dht.readTemperature(true);
 
-    // Wait a few seconds between measurements.
-    // Reading temperature or humidity takes about 250 milliseconds!
-    // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
-    float h = dht.readHumidity();
-    // Read temperature as Celsius (the default)
-    float c = dht.readTemperature();
-    // Read temperature as Fahrenheit (isFahrenheit = true)
-    float f = dht.readTemperature(true);
-
-    // Check if any reads failed and exit early (to try again).
-    if (isnan(h) || isnan(c) || isnan(f)) {
+  // Check if any reads failed and exit early (to try again).
+  if (isnan(h) || isnan(c) || isnan(f)) {
     Serial.println(F("Failed to read from DHT sensor!"));
     return;
-    }
+  }
 
-    // Compute heat index in Fahrenheit (the default)
-    float hif = dht.computeHeatIndex(f, h);
-    // Compute heat index in Celsius (isFahreheit = false)
-    float hic = dht.computeHeatIndex(c, h, false);
+  // Compute heat index in Fahrenheit (the default)
+  float hif = dht.computeHeatIndex(f, h);
+  // Compute heat index in Celsius (isFahreheit = false)
+  float hic = dht.computeHeatIndex(c, h, false);
 
 
-    // Serial.print(F("%  Temperature: "));
-    Serial.print(i);
-    Serial.print("  ");
-    Serial.print(c);
-    Serial.print(F("°C, "));
-    Serial.print(f);
-    Serial.print(F("°F, "));
-    Serial.print(h);  
-    Serial.println(F("H: "));
+  // Serial.print(F("%  Temperature: "));
+
+  Serial.print(c);
+  Serial.print(F("°C, "));
+  Serial.print(f);
+  Serial.print(F("°F, "));
+  Serial.print(h);  
+  Serial.println(F("H: "));
   
 //   Serial.print(F("°F  Heat index: "));
 //   Serial.print(hic);
 //   Serial.print(F("°C "));
 //   Serial.print(hif);
   // Serial.println(F("°F"));
-  i++;
-  if (i > 1000) {
-    i = 0;
-  } 
+
 }
 
 // /dev/ttyCH341USB0
