@@ -57,12 +57,7 @@ void loop() {
     const float temperature = dhtReader.getTemperature();
     const float humidity = dhtReader.getHumidity();    
     const float temp_f = temperature * 9.0 / 5.0 + 32.0; // Convert to Fahrenheit
-
-
-    const char text[] = "Hello World";
-    radio.write(&text, sizeof(text));
-    Serial.print(text);
-    Serial.print("  ");
+;
     // Send the data
 
     Serial.print(i);
