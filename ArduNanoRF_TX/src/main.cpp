@@ -26,69 +26,71 @@ struct SensorData {
 
 void setup() {
   Serial.begin(9600);
-  
-  // Initialize DHT sensor
   dhtReader.begin();
   radio.begin();
-  
-  // Initialize NRF24L01
   if (!radio.begin()) {
     Serial.println("Radio hardware not responding!");
     while (1) {} // Hold in infinite loop
-  }
-  
-  // Set the address
+  }  
   radio.openWritingPipe(address);
-  //radio.setPALevel(RF24_PA_MIN);  //
-
-  
-  // Set module as transmitter
-  radio.stopListening();
-  
+  radio.setPALevel(RF24_PA_MIN);  
+  radio.stopListening();  
   Serial.println("Transmitter initialized");
 }
 
 int i =0;
 
 void loop() {
-  delay(2000);
+  delay(1000);
   // Read temperature and humidity using the DHTTempReader class
   if (dhtReader.readData()) {
     const float temperature = dhtReader.getTemperature();
-    const float humidity = dhtReader.getHumidity();    
+    const int humidity = dhtReader.getHumidity();    
     const float temp_f = temperature * 9.0 / 5.0 + 32.0; // Convert to Fahrenheit
 
-
-    const char text[] = "Hello World";
-    radio.write(&text, sizeof(text));
-    Serial.print(text);
+    Serial.print(i);
     Serial.print("  ");
+    
+    const char text[] = "Temp";
+    radio.write(&text, sizeof(text));
+    radio.write(&temperature, sizeof(temperature));
+    radio.write(&humidity, sizeof(humidity));
+    Serial.print(text);
+    Serial.print(": ");
+    Serial.print(temperature);
+    Serial.print("°C, ");
+    Serial.print(humidity);
+    Serial.print("%, ");
+
     // Send the data
 
     Serial.print(i);
     Serial.print("  ");
 
-    radio.write(&temperature, sizeof(temperature));
-    Serial.print(temperature);
-    Serial.print("°C, ");
-    Serial.print(temp_f);
-    Serial.print("°F, ");
-    radio.write(&humidity, sizeof(temperature));
-    Serial.print(humidity);
-    Serial.print("%, ");
+    // radio.write(&temperature, sizeof(temperature));
+    // Serial.print(temperature);
+    // Serial.print("°C, ");
+    // Serial.print(temp_f);
+    // Serial.print("°F, ");
+    // radio.write(&humidity, sizeof(temperature));
+    // Serial.print(humidity);
+    // Serial.print("%, ");
 
       // Serial.println(" %");
     Serial.println("Data sent !!");  
     
-  } else {
-    Serial.println("Failed to read from DHT sensor!");
-  }
+  // } else {
+  //   Serial.println("Failed to read from DHT sensor!");
+  // }
   
   // Serial.print(" ");
   // Serial.print(dhtReader.getTemperature());
   // Serial.print(" ");
   // Serial.print(dhtReader.getHumidity());
   // Serial.println(" %");
+  }else {
+    Serial.println("Failed to read from DHT sensor!");
+  }
   i++;
 
   if (i > 1000)
