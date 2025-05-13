@@ -1,6 +1,7 @@
 #ifndef NRF24L01_COMM_H
 #define NRF24L01_COMM_H
 
+#include <SPI.h>
 #include <RF24.h>
 
 // Structure to hold sensor data
@@ -17,36 +18,34 @@ private:
     bool isTransmitter;
 
 public:
-    NRF24L01Comm(RF24& radioInstance, const byte* addr, bool transmitter = false)
+    // Constructor
+    NRF24L01Comm(RF24& radioInstance, const byte* addr, bool transmitter = true) 
         : radio(radioInstance), address(addr), isTransmitter(transmitter) {}
 
+    // Initialize the radio
     bool begin() {
         if (!radio.begin()) {
             return false;
         }
         
-        radio.setPALevel(RF24_PA_LOW);  // RF24_PA_MAX for maximum range
-        radio.setChannel(76);           // Set channel (0-125)
-        radio.setDataRate(RF24_250KBPS); // Set data rate
-        
-        if (isTransmitter) {
-            radio.openWritingPipe(address);
-        } else {
+        radio.openWritingPipe(address);
+        if (!isTransmitter) {
             radio.openReadingPipe(1, address);
             radio.startListening();
+        } else {
+            radio.stopListening();
         }
         
         return true;
     }
 
+    // Send sensor data
     bool sendSensorData(const SensorData& data) {
-        if (!isTransmitter) return false;
         return radio.write(&data, sizeof(SensorData));
     }
 
+    // Receive sensor data
     bool receiveSensorData(SensorData& data) {
-        if (isTransmitter) return false;
-        
         if (radio.available()) {
             radio.read(&data, sizeof(SensorData));
             return true;
