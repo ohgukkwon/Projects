@@ -1,0 +1,43 @@
+#include <string.h>
+#include <stdio.h>
+#include <Wire.h>                  // Include Wire library (required for I2C devices)
+#include <LiquidCrystal_I2C.h>  // Include LiquidCrystal_I2C library 
+#include "Arduino.h"
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);  // Configure LiquidCrystal_I2C library with 0x27 address, 16 columns and 2 rows
+//ESP32 sda #21, scl #22
+
+#include <SPI.h>
+#include <nRF24L01.h>
+#include <RF24.h>
+
+RF24 radio(4, 5); // CE, CSN on Blue Pill  ESP32
+
+const byte address2[6] = "00001";
+
+void setup() {
+  radio.begin();
+  radio.openWritingPipe(address2);
+  // radio.openReadingPipe(0, address);
+  radio.setPALevel(RF24_PA_MIN);
+  radio.stopListening();
+  radio.printDetails(); 
+
+  Serial.begin(115200);
+  Serial.setTimeout(1000);
+
+  lcd.clear();
+  lcd.init();                            // Initialize I2C LCD module
+  lcd.backlight();  
+}
+
+int i =0;
+// void radio_init();
+void loop()
+{ 
+  const char text[] = "Tx ESP32#1";
+  radio.write(&text, sizeof(text));
+  Serial.println(text);  
+  delay(100);
+}
+ 

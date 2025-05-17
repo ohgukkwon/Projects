@@ -16,12 +16,14 @@ RF24 radio(CE_PIN, CSN_PIN);
 DHTTempReader dhtReader(DHTPIN, DHTTYPE);
 
 // Define the address through which two modules communicate
-const byte address[6] = "00001";
+const byte address[6] = "00051";
 
 // Structure to hold sensor data
 struct SensorData {
   float temperature;
   float humidity;
+  float temp_f = temperature * 9.0 / 5.0 + 32.0; // Convert to Fahrenheit
+
 };
 
 void setup() {
@@ -57,43 +59,20 @@ void loop() {
     radio.write(&humidity, sizeof(humidity));
     Serial.print(text);
     Serial.print(": ");
-    Serial.print(temperature);
-    Serial.print("°C, ");
+    Serial.print(temp_f, 1);
+    Serial.print("°F, ");
+    Serial.print("H: ");
     Serial.print(humidity);
     Serial.print("%, ");
 
-    // Send the data
-
-    Serial.print(i);
-    Serial.print("  ");
-
-    // radio.write(&temperature, sizeof(temperature));
-    // Serial.print(temperature);
-    // Serial.print("°C, ");
-    // Serial.print(temp_f);
-    // Serial.print("°F, ");
-    // radio.write(&humidity, sizeof(temperature));
-    // Serial.print(humidity);
-    // Serial.print("%, ");
-
-      // Serial.println(" %");
     Serial.println("Data sent !!");  
     
-  // } else {
-  //   Serial.println("Failed to read from DHT sensor!");
-  // }
-  
-  // Serial.print(" ");
-  // Serial.print(dhtReader.getTemperature());
-  // Serial.print(" ");
-  // Serial.print(dhtReader.getHumidity());
-  // Serial.println(" %");
   }else {
     Serial.println("Failed to read from DHT sensor!");
   }
   i++;
 
-  if (i > 1000)
+  if (i > 9)
   {
     i=0;
   }
