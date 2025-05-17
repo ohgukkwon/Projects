@@ -40,7 +40,7 @@ void setup() {
   Serial.println("Transmitter initialized");
 }
 
-int i =0;
+int i =520;
 
 void loop() {
   delay(1000);
@@ -52,9 +52,10 @@ void loop() {
 
     Serial.print(i);
     Serial.print("  ");
+    radio.write(&i, sizeof(i));
     
     const char text[] = "Temp";
-    radio.write(&text, sizeof(text));
+    radio.write(&text, sizeof(text));    
     radio.write(&temperature, sizeof(temperature));
     radio.write(&humidity, sizeof(humidity));
     Serial.print(text);
@@ -72,9 +73,9 @@ void loop() {
   }
   i++;
 
-  if (i > 9)
+  if (i > 529)
   {
-    i=0;
+    i=520;
   }
 
 }

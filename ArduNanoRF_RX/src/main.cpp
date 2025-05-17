@@ -3,75 +3,108 @@
 #include <RF24.h>
 #include "dht11_temp_read.h"
 
+#include <LiquidCrystal_I2C.h>  //LiquidCrystal_I2C lcd(0x27,20,2);
+#include <Wire.h>
+
 // Define pins for NRF24L01
 #define CE_PIN 9
 #define CSN_PIN 10
 
-// Define pin for DHT11
-#define DHTPIN 14
-#define DHTTYPE DHT11
-
 // Create instances
 RF24 radio(CE_PIN, CSN_PIN);
-DHTTempReader dhtReader(DHTPIN, DHTTYPE);
+
+LiquidCrystal_I2C lcd(0x27,20,2);
 
 // Define the address through which two modules communicate
-const byte address[6] = "00001";
+const byte address51[6] = "00051";
+const byte address52[6] = "00052";
 
 // Structure to hold sensor data
-struct SensorData {
-  float temperature;
-  float humidity;
-};
+// struct SensorData {
+//   float temperature;
+//   float humidity;
+//   float temp_f = temperature * 9.0 / 5.0 + 32.0; // Convert to Fahrenheit
+// };
 
 void setup() {
-  Serial.begin(9600);
-  
-  // Initialize DHT sensor
-  dhtReader.begin();
+  Serial.begin(9600);  
+  radio.begin();  
   
   // Initialize NRF24L01
   if (!radio.begin()) {
     Serial.println("Radio hardware not responding!");
     while (1) {} // Hold in infinite loop
-  }
-  
+  }  
   // Set the address
-  radio.openWritingPipe(address);
+  radio.openReadingPipe(1, address51);
+  // radio.openReadingPipe(1, address52);
   
   // Set module as transmitter
-  radio.stopListening();
-  
-  Serial.println("Transmitter initialized");
+  radio.startListening(); 
+  radio.setPALevel(RF24_PA_MIN);  
+  Serial.println("RX initialized");
+
+  lcd.init();
+  lcd.clear();         
+  lcd.backlight();      // Make sure backlight is on
+  lcd.print("Initializing..");
+  delay(2000);
+  lcd.clear();
 }
+
+int add_num =0;
+float temperature = 0.0;
+int humidity = 0;
 
 void loop() {
+  delay(1500);
   // Read temperature and humidity using the DHTTempReader class
-  if (dhtReader.readData()) {
-    // Create data structure
-    SensorData data;
-    data.temperature = dhtReader.getTemperature();
-    data.humidity = dhtReader.getHumidity();
-    
-    // Send the data
-    if (radio.write(&data, sizeof(data))) {
-      Serial.println("Data sent successfully");
-      Serial.print("Temperature: ");
-      Serial.print(data.temperature);
-      Serial.print(" °C, Humidity: ");
-      Serial.print(data.humidity);
-      Serial.println(" %");
-    } else {
-      Serial.println("Failed to send data");
-    }
-  } else {
-    Serial.println("Failed to read from DHT sensor!");
+  if (radio.available()){
+    // const char text[] = "";
+    // radio.read(&text, sizeof(text));
+
+    // Serial.print(i);
+    // Serial.print(" ");
+    // Serial.print(text);
+    // Serial.print(": ");
+
+    // float temperature[32] = 0.0;
+    radio.read(&add_num, sizeof(add_num));
+    Serial.print(add_num);    // Print temperature with 1 decimal place
+    Serial.print(" ");
+    lcd.setCursor(0,0);    // Print temperature with 1 decimal place
+    lcd.print(add_num);
+    lcd.print(" ");
+
+    radio.read(&temperature, sizeof(temperature));
+    Serial.print(temperature, 1);
+    Serial.print("°F, ");
+
+
+    lcd.setCursor(4,0);
+    lcd.print("T: ");
+    lcd.print(temperature, 1);
+    lcd.print(" F, ");
+
+    // float humidity[32] = 0.0;
+    radio.read(&humidity, sizeof(humidity));
+    Serial.print("Hum: ");
+    Serial.print(humidity);
+    Serial.print("%, ");
+
+
+      // Serial.println(" %");
+    Serial.println("Data-OK");
+  }else{
+    Serial.println("No Data received");
   }
-  
-  // Wait for 2 seconds before next reading
-  delay(2000);
+  //   i++;
+
+  // if (i > 100)
+  // {
+  //   i=0;
+  // }
 }
 
 
-
-///dev/ttyCH341USB0
+//   /dev/ttyCH341USB0
