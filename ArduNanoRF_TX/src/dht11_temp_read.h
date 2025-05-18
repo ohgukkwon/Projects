@@ -23,7 +23,7 @@ public:
     }
 
     bool readData() {
-        temperature = dht->readTemperature();
+        temperature = dht->readTemperature(true);
         humidity = dht->readHumidity();
         
         // Check if any reads failed

@@ -2,7 +2,6 @@
 //#include <nRF24L01.h>
 #include <RF24.h>
 #include "dht11_temp_read.h"
-#include <nRF24L01.h>
 
 // Define pins for NRF24L01
 #define CE_PIN 9
@@ -17,13 +16,14 @@ RF24 radio(CE_PIN, CSN_PIN);
 DHTTempReader dhtReader(DHTPIN, DHTTYPE);
 
 // Define the address through which two modules communicate
-const byte address[6] = "00051";
+const byte address[6] = "00052";
 
 // Structure to hold sensor data
 struct SensorData {
   float temperature;
   float humidity;
-  float temp_f = temperature * 9.0 / 5.0 + 32.0; // Convert to Fahrenheit
+  int id_count;
+  char sensorID[10] = "SENSOR2";
 
 };
 
@@ -48,19 +48,23 @@ void loop() {
   // Read temperature and humidity using the DHTTempReader class
   if (dhtReader.readData()) {
     const float temperature = dhtReader.getTemperature();
-    const int humidity = dhtReader.getHumidity();    
-    const float temp_f = temperature * 9.0 / 5.0 + 32.0; // Convert to Fahrenheit
+    const int humidity = dhtReader.getHumidity();   
+    const float temp_f = temperature * 9.0 / 5.0 + 32.0; // Convert to Fahrenheit 
+    const int cout = i;
+      
+    if (isnan(temperature) || isnan(humidity)) {
+    Serial.println("Failed to read from DHT sensor!");
+    delay(2000);
+    return;
+    }
 
-    Serial.print(i);
-    Serial.print("  ");
-    radio.write(&i, sizeof(i));
-    
-    // const char text[] = "Temp";
-    // radio.write(&text, sizeof(text));    
+    // radio.write(&data, sizeof(data));
+    radio.write(&cout, sizeof(cout));    
     radio.write(&temp_f, sizeof(temp_f));
     radio.write(&humidity, sizeof(humidity));
-    // Serial.print(text);
-    Serial.print("T: ");
+
+    Serial.print(i);
+    Serial.print(" ");
 
     Serial.print(temp_f, 1);
     Serial.print("°F, ");
