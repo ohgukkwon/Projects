@@ -20,11 +20,11 @@ DHT dht(DHTPIN, DHTTYPE);
 const byte address[6] = "00052";
 
 // Structure to hold sensor data
-struct MyData {
-  int h;
-  float t;
+struct __attribute__((__packed__)) MyData {
   int rf_id;
   int rf_status;
+  int h;
+  float t;
   uint32_t timestamp;
 };
 MyData data;
@@ -50,8 +50,9 @@ void loop() {
   delay(1000);
   // Read temperature and humidity using the DHTTempReader class
   if (dht.read()) {
-    data.h = dht.readHumidity();
-    data.t = dht.readTemperature(true); 
+    data.t = dht.readTemperature(true); // true for Fahrenheit
+    data.h = dht.readHumidity(); 
+
     data.rf_id = id;
     data.rf_status = rf_status;
     data.timestamp = millis();
@@ -65,14 +66,18 @@ void loop() {
       // radio.write(&data, sizeof(data));
       radio.write(&data, sizeof(data));    
 
-      Serial.print(id);
+      Serial.print(data.rf_id);
       Serial.print(" ");
 
       Serial.print(data.t, 1);
       Serial.print("°F, ");
       Serial.print("H: ");
-      Serial.print(data.h);
+      Serial.print(data.h, 1);
       Serial.print("%, ");
+      Serial.print(data.rf_status);
+      Serial.print(" ");
+      Serial.print(data.timestamp);
+      Serial.print(" ");
 
       Serial.println("Data sent !!");  
     
