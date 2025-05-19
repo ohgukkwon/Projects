@@ -40,40 +40,54 @@ float temperature = 0.0;
 int humidity = 0;
 
 void loop() {
-  delay(1500);
+
+  delay(2000);
   // Read temperature and humidity using the DHTTempReader class
-  if (radio.available()){
-    // char text[32] = "";
-    // radio.read(&text, sizeof(text));
-    Serial.print(i);
-    Serial.print(" ");
-    // Serial.print(text);
-    // Serial.print(": ");
+  // if (dhtReader.readData()) {
+  //   const float temperature = dhtReader.getTemperature();
+  //   const float humidity = dhtReader.getHumidity();    
+  //   const float temp_f = temperature * 9.0 / 5.0 + 32.0; // Convert to Fahrenheit
+  Serial.print(i);
+  Serial.print("  ");
+  if (radio.available()) {
+    char text[32] = "";
+    radio.read(&text, sizeof(text));
+    Serial.print("Received: ");    
+    Serial.println(text);
 
-    // float temperature[32] = 0.0;
-    radio.read(&temperature, sizeof(temperature));
-    Serial.print(temperature, 1);    // Print temperature with 1 decimal place
-    Serial.print("°C, ");
 
-    // float humidity[32] = 0.0;
-    radio.read(&humidity, sizeof(humidity));
-    Serial.print("Hum: ");
-    Serial.print(humidity);
-    Serial.print("%, ");
+  
 
+    // radio.write(&temperature, sizeof(temperature));
+    // Serial.print(temperature);
+    // Serial.print("°C, ");
+    // Serial.print(temp_f);
+    // Serial.print("°F, ");
+    // radio.write(&humidity, sizeof(temperature));
+    // Serial.print(humidity);
+    // Serial.print("%, ");
 
       // Serial.println(" %");
-    Serial.println("Data-OK");
-  }else{
-    Serial.println("No Data received");
+    Serial.println("Data Received !!");  
+    
+  } else {
+    Serial.println("Failed to read Data!");
   }
-    i++;
+  
+  // Serial.print(" ");
+  // Serial.print(dhtReader.getTemperature());
+  // Serial.print(" ");
+  // Serial.print(dhtReader.getHumidity());
+  // Serial.println(" %");
+  i++;
 
-  if (i > 100)
+  if (i > 1000)
   {
     i=0;
   }
+
 }
+
 
 
 //   /dev/ttyCH341USB0
