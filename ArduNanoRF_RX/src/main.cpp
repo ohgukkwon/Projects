@@ -1,146 +1,89 @@
 #include <SPI.h>
-#include <nRF24L01.h>
-#include <RF24.h>
-
-#include <LiquidCrystal_I2C.h>  //LiquidCrystal_I2C lcd(0x27,20,2);
 #include <Wire.h>
-
-// Define pins for NRF24L01
-#define CE_PIN 9
-#define CSN_PIN 10
-
-#define LED_PIN_R 14
-#define LED_PIN_G 15
+#include "Rf_Data.h"
+#include "Lcd_16x2.h"
 
 // Create instances
-RF24 radio(CE_PIN, CSN_PIN);
+NRF24L01Handler radioHandler;
+LCD_16x2 lcd;
 
-LiquidCrystal_I2C lcd(0x27,20,2);
+MyData rx_Data;  // Data structure for received data
 
-// Define the address through which two modules communicate
-// const byte address51[6] = "00051";
-const byte address51[6] = "00051";
-const byte address52[6] = "00052";
-
-struct __attribute__((__packed__)) MyData {
-  int rf_id;
-  int rf_status;
-  int h;
-  float t;
-  uint32_t timestamp;
-};
-MyData rData;
+unsigned long currentMillis = 0;
+unsigned long previousDataMillis = 0;
+const long dataInterval = 1000;  // 1 second for data reading
 
 void setup() {
-  pinMode(LED_PIN_R, OUTPUT);
-  pinMode(LED_PIN_G, OUTPUT);
+    Serial.begin(9600);  
+    Serial.println("Starting...");
 
+    // Initialize radio with more detailed error checking
+    if (!radioHandler.begin()) {
+        Serial.println("Radio hardware not responding!");
+        while (1) {} // Hold in infinite loop
+    }  
 
-  Serial.begin(9600);  
-  radio.begin();  
-  
-  // Initialize NRF24L01
-  if (!radio.begin()) {
-    Serial.println("Radio hardware not responding!");
-    while (1) {} // Hold in infinite loop
-  }  
-  // Set the address
-  radio.openReadingPipe(2, address51);
-  radio.openReadingPipe(1, address52);
-  
-  // Set module as transmitter
-  radio.setPALevel(RF24_PA_MIN);  
-  radio.startListening();
-  Serial.println("RX initialized");
+    // Configure radio settings
+    radioHandler.setPALevel(RF24_PA_LOW);  // Try LOW instead of MIN for better range
+    // Open reading pipe
+    radioHandler.openReadingPipe(1, address52);
+    radioHandler.startListening();
+    
+    // Print radio details for debugging
+    Serial.println("Radio initialized with settings:");
+    Serial.println("Address: 00052");
+    Serial.println("Power Level: LOW");
+    Serial.println("Data Rate: 250KBPS");
+    Serial.println("Listening...");
 
-  lcd.init();
-  lcd.clear();         
-  lcd.backlight();      // Make sure backlight is on
-  lcd.print("Initializing..");
-  delay(1000);
-  lcd.clear();
+    lcd.begin();
 }
 
-int i =0;
-uint32_t lastMillis = 0;
-uint32_t currentMillis = 0;
-
 void loop() {
-  delay(1000);
-  if (radio.available()) {
-    radio.read(&rData, sizeof(rData));
-    // radio.read(&receivedData, sizeof(receivedData));
-    if (rData.rf_status == 0) {
-      Serial.println("Data: 0");
-      lcd.clear();
-      lcd.setCursor(0,0);
-      lcd.print("Data: 0");
-      delay(1000);
-      return;
-    }
-
+  currentMillis = millis();
+  
+  if (currentMillis - previousDataMillis >= dataInterval) {
+      previousDataMillis = currentMillis;
       
-    Serial.print(rData.rf_id);    // Print temperature with 1 decimal place
-
-    Serial.print(i);    // Print temperature with 1 decimal place
-    Serial.print(" ");
-
-    Serial.print(rData.t, 1);    // Print temperature with 1 decimal place
-    Serial.print("°F, ");
-    lcd.setCursor(0,0);
-    lcd.print("T: ");
-    lcd.setCursor(3,0);
-    lcd.print(rData.t,1);
-    lcd.print(F("F, "));
-
-    Serial.print("H: ");
-    Serial.print(rData.h);
-    Serial.print("%, ");
-
-    if (rData.h >=45) {
-      digitalWrite(LED_PIN_R, LOW);
-      digitalWrite(LED_PIN_G, HIGH);
+    // Check if radio is available
+    if (radioHandler.available()) {
+      // Clear the data structure before reading
+      memset(&rx_Data, 0, sizeof(MyData));
+      // Read the data
+      radioHandler.read(rx_Data);
+      // Check if the data is valid
+      if (rx_Data.rf_id > 0 && rx_Data.rf_status >= 0) {
+        if (rx_Data.rf_status == 0) {
+            Serial.println("RF Status: 0");
+            lcd.displayNoData();
+            return;
+        }
+        
+        // Update LCD with new data
+        lcd.update(rx_Data);
+        
+        // Print to Serial
+        Serial.print("ID: ");
+        Serial.print(rx_Data.rf_id);
+        Serial.print(" Temp: ");
+        Serial.print(rx_Data.t, 1);
+        Serial.print("°F, Hum: ");
+        Serial.print(rx_Data.h);
+        Serial.print("%, Status: ");
+        Serial.print(rx_Data.rf_status);
+        Serial.print(" Time: ");
+        Serial.print(rx_Data.timestamp);
+        Serial.println(" RX-OK ");
+      } else {
+          Serial.println("Invalid data received");
+          lcd.displayNoData();
+      }
     } else {
-      digitalWrite(LED_PIN_R, HIGH);
-      digitalWrite(LED_PIN_G, LOW);
+        Serial.println("RF NOT available");
+        lcd.displayNoData();
     }
-
-    lcd.setCursor(10,0);
-    lcd.print("H:");
-    lcd.print(rData.h);
-    lcd.print(F("%"));
-
-    lcd.setCursor(0,1);
-    lcd.print(rData.rf_id);
-    lcd.setCursor(2,1);
-    lcd.print(i);
-    lcd.print(" ");
-    lcd.setCursor(4,1);
-    lcd.print("Rx Radio OK");
-
-    Serial.print(rData.rf_status);
-    Serial.print(" ");
-    
-    Serial.print(rData.timestamp);
-    Serial.print(" ");
-    Serial.println("RX-OK ");
-
-    // Serial.print(receivedData.timestamp);
-
-
-  } else {
-      // Serial.println("No data available");
-      Serial.println("RF Status: 0");      
-      lcd.setCursor(0,0);
-      lcd.print("RF Status: 0");
-      delay(1000);
-      lcd.clear();
-    return;
   }
-  i++;
-  if (i >= 10) {
-    i = 0;
-  }
-
-
+  
+  // Process LCD updates
+  lcd.process();
 }
