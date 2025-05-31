@@ -1,6 +1,7 @@
 #include "Lcd_16x2.h"
 
-LCD_16x2::LCD_16x2(uint8_t address, uint8_t columns, uint8_t rows) {
+LCD_16x2::LCD_16x2(NRF24L01Handler* handler, uint8_t address, uint8_t columns, uint8_t rows) 
+    : radioHandler(handler) {
     lcd = new LiquidCrystal_I2C(address, columns, rows);
 }
 
@@ -17,23 +18,30 @@ void LCD_16x2::begin() {
     lcd->clear();
 }
 
-void LCD_16x2::update(MyData& newData) {
-    currentData = newData;
-    newDataAvailable = true;
-}
-
 void LCD_16x2::process() {
     unsigned long currentMillis = millis();
 
-    // Check if it's time to update the display (every 2 seconds)
     if (currentMillis - previousDisplayMillis >= displayInterval) {
         previousDisplayMillis = currentMillis;
         
-        if (newDataAvailable) {
-            displayData();
-            newDataAvailable = false;
+        MyData data = radioHandler->get_rf_data();
+        
+        // Check if timestamp has changed
+        if (data.timestamp != lastTimestamp) {
+            lastTimestamp = data.timestamp;
+            if (data.rf_id > 0 && data.rf_status >= 0) {
+                displayData();
+            } else {
+                displayNoData();
+            }
         } else {
-            displayNoData();
+            // Timestamp hasn't changed, display no data message
+            lcd->clear();
+            lcd->setCursor(0, 0);
+            lcd->print("No data from RF");
+            lcd->setCursor(0, 1);
+            lcd->print("Last: ");
+            lcd->print(lastTimestamp);
         }
     }
 }
@@ -45,27 +53,41 @@ void LCD_16x2::clear() {
 void LCD_16x2::displayNoData() {
     lcd->clear();
     lcd->setCursor(0, 0);
-    lcd->print("lcd no data");
+    lcd->print("No data from RF");
 }
 
 void LCD_16x2::displayData() {
+    MyData data = radioHandler->get_rf_data();
+    
     lcd->clear();
     
     // First line: Temperature and Humidity
     lcd->setCursor(0, 0);
-    lcd->print("T: ");
-    lcd->print(currentData.t, 1);
-    lcd->print("F, ");
-    
-    lcd->setCursor(10, 0);
-    lcd->print("H:");
-    lcd->print(currentData.h);
+    lcd->print("T:");
+    lcd->setCursor(2, 0);
+    lcd->print(data.t, 1);  // Print temperature with 1 decimal place
+    lcd->setCursor(6, 0);
+    lcd->print("F, H:");
+
+    lcd->print(data.h);
     lcd->print("%");
 
     // Second line: ID and Status
     lcd->setCursor(0, 1);
-    lcd->print(currentData.rf_id);
-    lcd->print(" ");
-    lcd->setCursor(4, 1);
-    lcd->print("Radio OK");
+    lcd->print("ID:");
+    lcd->print(data.rf_id);
+    lcd->print(" S:");
+    lcd->print(data.rf_status);
+
+    Serial.print("ID: ");
+    Serial.print(data.rf_id);
+    Serial.print(" Temp: ");
+    Serial.print(data.t, 1);
+    Serial.print("°F, Hum: ");
+    Serial.print(data.h);
+    Serial.print("%, Status: ");
+    Serial.print(data.rf_status);
+    Serial.print(" Time: ");
+    Serial.print(data.timestamp);
+    Serial.println(" LCD-OK ");
 }
