@@ -22,6 +22,8 @@ class LCD_16x2 {
         const long displayInterval = 1000;  // 1 second for display update
         NRF24L01Handler* radioHandler;
         uint32_t lastTimestamp = 0;  // Track last received timestamp
+        unsigned long lcd_clear_Millis = 0;
+        const unsigned long lcd_clear_interval = 10000; // Interval in milliseconds
 };
 
 #endif

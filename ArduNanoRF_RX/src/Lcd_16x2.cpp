@@ -42,8 +42,15 @@ void LCD_16x2::process() {
             lcd->setCursor(0, 1);
             lcd->print("Last: ");
             lcd->print(lastTimestamp);
+            delay(1000);
         }
     }
+     
+    if (currentMillis - lcd_clear_Millis >= lcd_clear_interval) {
+        lcd->clear();
+        lcd_clear_Millis = currentMillis;
+    }
+    // Read data at specified intervals
 }
 
 void LCD_16x2::clear() {
@@ -59,25 +66,28 @@ void LCD_16x2::displayNoData() {
 void LCD_16x2::displayData() {
     MyData data = radioHandler->get_rf_data();
     
-    lcd->clear();
+    // lcd->clear();
     
     // First line: Temperature and Humidity
     lcd->setCursor(0, 0);
-    lcd->print("T:");
-    lcd->setCursor(2, 0);
-    lcd->print(data.t, 1);  // Print temperature with 1 decimal place
-    lcd->setCursor(6, 0);
+    lcd->print("TEMP:");
+    lcd->setCursor(5, 0);
+    lcd->print(data.t, 0);  // Print temperature with 1 decimal place
+    lcd->setCursor(8, 0);
     lcd->print("F, H:");
 
     lcd->print(data.h);
+    lcd->setCursor(15, 0);
     lcd->print("%");
 
     // Second line: ID and Status
     lcd->setCursor(0, 1);
-    lcd->print("ID:");
+    lcd->print("RF #:");
     lcd->print(data.rf_id);
-    lcd->print(" S:");
-    lcd->print(data.rf_status);
+    if (data.rf_status == 1) {
+        lcd->setCursor(14, 1);
+        lcd->print("OK");
+    }
 
     Serial.print("ID: ");
     Serial.print(data.rf_id);

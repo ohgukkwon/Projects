@@ -1,12 +1,10 @@
 #include "Rf_Data.h"
 
 // Define the address through which two modules communicate
-unsigned long rf_pre_Millis = 0;
-
-const unsigned long rf_interval = 1000; // Interval in milliseconds
+// unsigned long rf_pre_Millis = 0;
+// const unsigned long rf_interval = 1000; // Interval in milliseconds
 
 MyData rf_Data;
-
 
 NRF24L01Handler::NRF24L01Handler() : radio(CE_PIN, CSN_PIN), isInitialized(false) {
 }

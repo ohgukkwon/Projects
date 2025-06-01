@@ -9,7 +9,7 @@ LCD_16x2 lcd(&radioHandler);
 
 MyData rx_Data;  // Data structure for received data
 
-unsigned long currentMillis = 0;
+
 unsigned long previousDataMillis = 0;
 const long dataInterval = 1000;  // 1 second for data reading
 
@@ -21,12 +21,6 @@ void setup() {
         Serial.println("Radio hardware not responding!");
         while (1) {} // Hold in infinite loop
     }  
-
-    // Initialize radio with more detailed error checking
-    // Open reading pipe
-    // radioHandler.openReadingPipe(1, address52);
-        
-    // Print radio details for debugging
     Serial.println("Radio initialized with settings:");
     Serial.println("Address: 00052");
     Serial.println("Power Level: LOW");
@@ -42,4 +36,5 @@ void loop() {
     
     // Process LCD updates
     lcd.process();
+
 }
