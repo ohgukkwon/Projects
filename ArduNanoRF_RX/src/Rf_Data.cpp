@@ -16,7 +16,36 @@ bool NRF24L01Handler::begin() {
         radio.setDataRate(RF24_1MBPS);   // Set data rate to 1MBPS
         radio.openReadingPipe(1, address52);
         radio.startListening();
+        
+        Serial.print("Address: ");
+        Serial.println((char*)address52);  // Print the address
+        
+        Serial.print("Power Level: ");
+        if (radio.getPALevel() == 0) {
+            Serial.println("RF24_PA_MIN");
+        } else if (radio.getPALevel() == 1) {
+            Serial.println("RF24_PA_LOW");
+        } else if (radio.getPALevel() == 2) {
+            Serial.println("RF24_PA_HIGH");
+        } else {
+            Serial.println("RF24_PA_MAX");
+        }
+
+        Serial.print("Data Rate: ");
+        if (radio.getDataRate() == 0) {
+            Serial.println("RF24_1MBPS");
+        } else if (radio.getDataRate() == 1) {
+            Serial.println("RF24_2MBPS");
+        } else if (radio.getDataRate() == 2) {
+            Serial.println("RF24_250KBPS");
+        } else {
+            Serial.println("Unknown Data Rate");
+        }
+
+
+        Serial.println("Listening...");
         Serial.println("Radio initialized successfully");
+
     } else {
         Serial.println("Radio initialization failed");
         while (1) {} // Hold in infinite loop

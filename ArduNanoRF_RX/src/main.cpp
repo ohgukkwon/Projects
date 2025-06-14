@@ -22,10 +22,9 @@ void setup() {
         while (1) {} // Hold in infinite loop
     }  
     Serial.println("Radio initialized with settings:");
-    Serial.println("Address: 00052");
-    Serial.println("Power Level: LOW");
-    Serial.println("Data Rate: 250KBPS");
-    Serial.println("Listening...");
+    // Serial.println("Power Level: LOW");
+    // Serial.println("Data Rate: 250KBPS");
+    // Serial.println("Listening...");
 
     lcd.begin();
 }

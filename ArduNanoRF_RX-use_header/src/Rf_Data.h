@@ -11,8 +11,6 @@
 
 const byte address52[6] = "00052";
 
-// Create instances
-
 struct __attribute__((__packed__)) MyData {
     int rf_id;
     int rf_status;
@@ -21,24 +19,27 @@ struct __attribute__((__packed__)) MyData {
     uint32_t timestamp;
 };
 
-
-
 class NRF24L01Handler {
     public:
         NRF24L01Handler();
         bool begin();
         bool available();
         bool read(MyData& data);
+        void radio_process();
         void startListening();
         void stopListening();
         void setPALevel(uint8_t level);
         void openReadingPipe(uint8_t pipe, const byte* address);
-        void printDetails();  // Add this for debugging
-
+        void printDetails();
+        void rf_serial();
+        MyData get_rf_data() { return rf_Data; }
 
     private:
         RF24 radio;
         bool isInitialized;
+        MyData rf_Data;
+        unsigned long rf_pre_Millis = 0;
+        const long rf_Interval = 1000; // 1 second interval
 };
 
-#endif // NRF24L01_HANDLER_H 
+#endif 

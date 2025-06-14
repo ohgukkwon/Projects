@@ -72,9 +72,9 @@ void LCD_16x2::displayData() {
     lcd->setCursor(0, 0);
     lcd->print("TEMP:");
     lcd->setCursor(5, 0);
-    lcd->print(data.t, 0);  // Print temperature with 1 decimal place
-    lcd->setCursor(8, 0);
-    lcd->print("F, H:");
+    lcd->print(data.t, 1);  // Print temperature with 1 decimal place
+    lcd->setCursor(9, 0);
+    lcd->print("F,H:");
 
     lcd->print(data.h);
     lcd->setCursor(15, 0);
@@ -82,7 +82,7 @@ void LCD_16x2::displayData() {
 
     // Second line: ID and Status
     lcd->setCursor(0, 1);
-    lcd->print("RF #:");
+    lcd->print("Radio_#:");
     lcd->print(data.rf_id);
     if (data.rf_status == 1) {
         lcd->setCursor(14, 1);
