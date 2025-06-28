@@ -29,7 +29,7 @@ void LCD_16x2::process() {
         // Check if timestamp has changed
         if (data.timestamp != lastTimestamp) {
             lastTimestamp = data.timestamp;
-            if (data.rf_id > 0 && data.rf_status >= 0) {
+            if (data.rf_address > 0 && data.rf_status >= 0) {
                 displayData();
             } else {
                 displayNoData();
@@ -83,14 +83,14 @@ void LCD_16x2::displayData() {
     // Second line: ID and Status
     lcd->setCursor(0, 1);
     lcd->print("Radio_#:");
-    lcd->print(data.rf_id);
+    lcd->print(data.rf_address);
     if (data.rf_status == 1) {
         lcd->setCursor(14, 1);
         lcd->print("OK");
     }
 
     Serial.print("ID: ");
-    Serial.print(data.rf_id);
+    Serial.print(data.rf_address);
     Serial.print(" Temp: ");
     Serial.print(data.t, 1);
     Serial.print("°F, Hum: ");

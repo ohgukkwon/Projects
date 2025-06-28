@@ -9,10 +9,10 @@
 #define CE_PIN 9
 #define CSN_PIN 10
 
-const byte address52[6] = "00052";
+const byte address51[6] = "00051";
 
 struct __attribute__((__packed__)) MyData {
-    int rf_id;
+    int rf_address;
     int rf_status;
     int h;
     float t;

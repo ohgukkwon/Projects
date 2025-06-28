@@ -17,7 +17,7 @@ RF24 radio(CE_PIN, CSN_PIN);
 DHT dht(DHTPIN, DHTTYPE);
 
 // Define the address through which two modules communicate
-const byte address[6] = "00052";
+const byte address[6] = "00051";
 
 // Structure to hold sensor data
 struct __attribute__((__packed__)) MyData {
@@ -44,7 +44,7 @@ void setup() {
   Serial.println("Transmitter initialized");
 }
 
-int id =52;
+int id =atoi((char*)address);
 int rf_status = 1;
 int i = 0;
 

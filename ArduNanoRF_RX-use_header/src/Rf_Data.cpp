@@ -12,11 +12,21 @@ NRF24L01Handler::NRF24L01Handler() : radio(CE_PIN, CSN_PIN), isInitialized(false
 bool NRF24L01Handler::begin() {
     isInitialized = radio.begin();
     if (isInitialized) {
+        // Set rf_id from address52
+        rf_Data.rf_address = atoi((char*)address51);  // Convert "00052" to integer 52
+        
+        // Configure radio
         radio.setPALevel(RF24_PA_HIGH);  // Set power level to HIGH
         radio.setDataRate(RF24_1MBPS);   // Set data rate to 1MBPS
-        radio.openReadingPipe(1, address52);
-        radio.startListening();
+        radio.setChannel(76);            // Set channel
+        radio.openReadingPipe(1, address51);  // Open pipe to receive from address52
+        radio.startListening();          // Start listening for data
+        
         Serial.println("Radio initialized successfully");
+        Serial.print("Listening on address: ");
+        Serial.println((char*)address51);
+        Serial.print("RF ID set to: ");
+        Serial.println(rf_Data.rf_address);
     } else {
         Serial.println("Radio initialization failed");
         while (1) {} // Hold in infinite loop
@@ -54,7 +64,12 @@ bool NRF24L01Handler::read(MyData& data) {
     memset(&data, 0, sizeof(MyData));
     radio.read(&data, sizeof(MyData));
     
-    if (data.rf_id > 0 && data.rf_status >= 0) {
+    // Print received data for debugging
+    Serial.print("Received ID: ");
+    Serial.println(data.rf_address);
+    
+    if (data.rf_address > 0 && data.rf_status >= 0) {
+        rf_Data = data;  // Store the received data
         return true;
     }    
     return false;
@@ -84,7 +99,7 @@ void NRF24L01Handler::printDetails() {
 
 void NRF24L01Handler::rf_serial() {
     Serial.print("ID: ");
-    Serial.print(rf_Data.rf_id);
+    Serial.print(rf_Data.rf_address);
     Serial.print(" Temp: ");
     Serial.print(rf_Data.t, 1);
     Serial.print("°F, Hum: ");
