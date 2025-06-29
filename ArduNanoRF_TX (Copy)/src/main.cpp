@@ -21,12 +21,11 @@ const byte address[6] = "00051";
 
 // Structure to hold sensor data
 struct __attribute__((__packed__)) MyData {
-  int id;
-  int rf_status;
-  int h;
-  float t;
-  uint32_t timestamp;
-
+    int32_t rf_id;
+    int32_t rf_status;
+    int32_t h;
+    float t;
+    uint32_t timestamp;
 };
 MyData data;
 
@@ -57,7 +56,7 @@ void loop() {
     data.t = dht.readTemperature(true); // true for Fahrenheit
     data.h = dht.readHumidity(); 
 
-    data.id = id;
+    data.rf_id = id;
     data.rf_status = rf_status;
     data.timestamp = millis();
 
@@ -70,7 +69,7 @@ void loop() {
     // radio.write(&data, sizeof(data));
     radio.write(&data, sizeof(data));    
 
-    Serial.print(data.id);
+    Serial.print(data.rf_id);
     Serial.print(" ");
 
     Serial.print(i);

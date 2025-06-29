@@ -50,7 +50,6 @@ void LCD_16x2::process() {
         lcd->clear();
         lcd_clear_Millis = currentMillis;
     }
-    // Read data at specified intervals
 }
 
 void LCD_16x2::clear() {
@@ -66,7 +65,7 @@ void LCD_16x2::displayNoData() {
 void LCD_16x2::displayData() {
     MyData data = radioHandler->get_rf_data();
     
-    // lcd->clear();
+    lcd->clear();
     
     // First line: Temperature and Humidity
     lcd->setCursor(0, 0);
@@ -89,15 +88,15 @@ void LCD_16x2::displayData() {
         lcd->print("OK");
     }
 
-    Serial.print("ID: ");
-    Serial.print(data.rf_id);
-    Serial.print(" Temp: ");
-    Serial.print(data.t, 1);
-    Serial.print("°F, Hum: ");
-    Serial.print(data.h);
-    Serial.print("%, Status: ");
-    Serial.print(data.rf_status);
-    Serial.print(" Time: ");
-    Serial.print(data.timestamp);
-    Serial.println(" LCD-OK ");
+    // Serial.print("ID: ");
+    // Serial.print(data.rf_id);
+    // Serial.print(" Temp: ");
+    // Serial.print(data.t, 1);
+    // Serial.print("°F, Hum: ");
+    // Serial.print(data.h);
+    // Serial.print("%, Status: ");
+    // Serial.print(data.rf_status);
+    // Serial.print(" Time: ");
+    // Serial.print(data.timestamp);
+    // Serial.println(" LCD-OK ");
 }

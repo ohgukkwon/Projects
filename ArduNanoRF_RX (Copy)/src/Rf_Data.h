@@ -12,9 +12,9 @@
 const byte address51[6] = "00051";
 
 struct __attribute__((__packed__)) MyData {
-    int rf_address;
-    int rf_status;
-    int h;
+    int32_t rf_id;
+    int32_t rf_status;
+    int32_t h;
     float t;
     uint32_t timestamp;
 };
