@@ -1,7 +1,8 @@
 #include "Lcd_16x2.h"
+#include "SigIO.h"
 
-LCD_16x2::LCD_16x2(NRF24L01Handler* handler, uint8_t address, uint8_t columns, uint8_t rows) 
-    : radioHandler(handler) {
+LCD_16x2::LCD_16x2(NRF24L01Handler* handler, SigIO* sigHandler, uint8_t address, uint8_t columns, uint8_t rows) 
+    : radioHandler(handler), sigHandler(sigHandler) {
     lcd = new LiquidCrystal_I2C(address, columns, rows);
 }
 
@@ -81,22 +82,13 @@ void LCD_16x2::displayData() {
 
     // Second line: ID and Status
     lcd->setCursor(0, 1);
-    lcd->print("Radio_#:");
-    lcd->print(data.rf_id);
+    lcd->print("V_IN: ");
+    lcd->print(sigHandler->v_in, 1);
+    
     if (data.rf_status == 1) {
         lcd->setCursor(14, 1);
         lcd->print("OK");
     }
 
-    // Serial.print("ID: ");
-    // Serial.print(data.rf_id);
-    // Serial.print(" Temp: ");
-    // Serial.print(data.t, 1);
-    // Serial.print("°F, Hum: ");
-    // Serial.print(data.h);
-    // Serial.print("%, Status: ");
-    // Serial.print(data.rf_status);
-    // Serial.print(" Time: ");
-    // Serial.print(data.timestamp);
-    // Serial.println(" LCD-OK ");
+
 }

@@ -2,16 +2,15 @@
 #include <Wire.h>
 #include "Rf_Data.h"
 #include "Lcd_16x2.h" // Make sure this file exists in the 'src' or 'include' directory, or correct the filename if needed
+#include "SigIO.h"
 
 // Create instances
 NRF24L01Handler radioHandler;
-LCD_16x2 lcd(&radioHandler);
+SigIO sigIO;
+LCD_16x2 lcd(&radioHandler, &sigIO);
 
 MyData rx_Data;  // Data structure for received data
 
-
-unsigned long previousDataMillis = 0;
-const long dataInterval = 1000;  // 1 second for data reading
 
 void setup() {
     Serial.begin(115200);  
@@ -22,9 +21,9 @@ void setup() {
         while (1) {} // Hold in infinite loop
     }  
     Serial.println("Radio initialized with settings:");
-    // Serial.println("Power Level: LOW");
-    // Serial.println("Data Rate: 250KBPS");
-    // Serial.println("Listening...");
+    Serial.println("Listening...");
+
+    // initialize the pushbutton pin as an input
 
     lcd.begin();
 }
@@ -35,5 +34,6 @@ void loop() {
     
     // Process LCD updates
     lcd.process();
+    sigIO.io_process();  // Process digital and analog I/O
 
 }

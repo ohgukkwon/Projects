@@ -5,9 +5,12 @@
 #include <LiquidCrystal_I2C.h>
 #include "Rf_Data.h"
 
+// Forward declaration
+class SigIO;
+
 class LCD_16x2 {
     public:
-        LCD_16x2(NRF24L01Handler* handler, uint8_t address = 0x27, uint8_t columns = 20, uint8_t rows = 2);
+        LCD_16x2(NRF24L01Handler* handler, SigIO* sigHandler, uint8_t address = 0x27, uint8_t columns = 20, uint8_t rows = 2);
         ~LCD_16x2();
         
         void begin();
@@ -21,6 +24,7 @@ class LCD_16x2 {
         unsigned long previousDisplayMillis = 0;
         const long displayInterval = 1000;  // 1 second for display update
         NRF24L01Handler* radioHandler;
+        SigIO* sigHandler;
         uint32_t lastTimestamp = 0;  // Track last received timestamp
         unsigned long lcd_clear_Millis = 0;
         const unsigned long lcd_clear_interval = 10000; // Interval in milliseconds
